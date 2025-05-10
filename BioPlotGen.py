@@ -8,6 +8,9 @@ from collections import Counter
 import io
 import numpy as np
 
+# Setting page configuration (this must be the first command in the script)
+st.set_page_config(page_title="BioPlotGen", layout="wide")
+
 # Apply light pastel background and styling
 st.markdown("""
     <style>
@@ -43,10 +46,6 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
-# Setting page configuration
-st.set_page_config(page_title="BioPlotGen", layout="wide")
-st.title("🧬 BioPlotGen – Bioinformatics Plot Generator")
 
 # ---------------- Navigation Tabs ---------------- #
 tab1, tab2, tab3, tab4 = st.tabs(["🏠 Welcome", "🧪 About the App", "👥 About Team", "📈 Generate Plots"])
@@ -201,21 +200,17 @@ with tab4:
                     sns.violinplot(data=data, x=x_col, y=y_col, ax=ax)
                 elif plot_type == "Heatmap":
                     if data.select_dtypes(include=['number']).shape[1] >= 2:
-                        sns.heatmap(data.select_dtypes(include=['number']).corr(), annot=True, cmap="coolwarm", ax=ax)
-                    else:
-                        st.warning("Heatmap requires at least 2 numeric columns.")
-                fig.tight_layout()
+                        corr_matrix = data.corr()
+                        fig, ax = plt.subplots(figsize=(10, 8))
+                        sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
+                        st.pyplot(fig)
+                st.pyplot(fig)
 
-            st.pyplot(fig)
+            st.subheader("💾 Download Plot")
+            st.download_button("Download Plot", data=fig, file_name="plot.png", mime="image/png")
 
-            # ---------- Export Plot ---------- #
-            st.subheader("📤 Export Plot")
-            file_format = st.selectbox("Select format", ["PNG", "SVG", "PDF"])
-            buf = io.BytesIO()
-            fig.savefig(buf, format=file_format.lower(), bbox_inches="tight")
-            st.download_button(
-                label="Download Plot",
-                data=buf.getvalue(),
-                file_name=f"bioplotgen_plot.{file_format.lower()}",
-                mime=f"image/{file_format.lower()}"
-            )
+        st.subheader("🚀 Try another File!")
+        st.button("Reset")
+
+
+          
