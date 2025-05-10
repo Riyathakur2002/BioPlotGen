@@ -36,7 +36,7 @@ with tab3:
     st.header("👩‍💻 About the Creator")
     st.markdown("""
     **Riyasingh Thakur**, MSc Bioinformatics student at DES Pune University.
-      I am  a passionate MSc Bioinformatics student at DES Fergusson College, Pune. With a strong background in microbiology and a growing expertise in programming,     I am deeply committed to bridging the gap between biological sciences and computational technologies.
+      I am  a passionate MSc Bioinformatics student at DES Pune University. With a strong background in microbiology and a growing expertise in programming,     I am deeply committed to bridging the gap between biological sciences and computational technologies.
 
  BioPlotGen work on BioPlotGen reflects  my enthusiasm for creating user-friendly tools that simplify complex biological data analysis. I believe that the integration of biology and computer science holds the key to unlocking breakthroughs in modern research—and I am determined to be a part of that transformation.
 
