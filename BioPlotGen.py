@@ -54,7 +54,9 @@ tab1, tab2, tab3, tab4 = st.tabs(["🏠 Welcome", "🧪 About the App", "👥 Ab
 with tab1:
     st.title("🧬 Welcome to BioPlotGen")
     st.markdown("""
-    **BioPlotGen** is an interactive web app for visualizing biological data—whether you're working with gene expression, DNA, or protein sequences. It transforms complex datasets into meaningful plots with just a few clicks.
+    **🧬 Welcome to BioPlotGen
+Welcome to BioPlotGen, the ultimate tool for visualizing and analyzing biological data, designed for biologists, researchers, and students at all levels—no coding required!
+BioPlotGen makes it easier than ever to transform complex biological data into insightful, publication-quality plots with just a few clicks. Whether you're analyzing gene expression, DNA sequences, protein structures, or other bioinformatics data, BioPlotGen provides an intuitive, user-friendly platform to help you make sense of your research without needing any programming skills.
     """)
 
 # Tab 2: About the App
@@ -74,10 +76,14 @@ with tab2:
 with tab3:
     st.header("👩‍💻 About the Creator")
     st.markdown("""
-    **Riyasingh Thakur**, MSc Bioinformatics student at DES Pune University.
+**Riyasingh Thakur**, MSc Bioinformatics student at DES Pune University.
+I am a passionate MSc Bioinformatics student at DES Fergusson College, Pune, with a strong background in microbiology and a growing expertise in programming. I am deeply committed to bridging the gap between biological sciences and computational technologies.
+My work on BioPlotGen reflects my enthusiasm for creating user-friendly tools that simplify complex biological data analysis. I believe that the integration of biology and computer science holds the key to unlocking breakthroughs in modern research, and I am determined to be a part of that transformation.
 
-    *Gratitude to mentors Dr. Kushagra Kashyab and Dr. Poonam Deshpande for their guidance.*
-
+I would like to express my deepest gratitude to Dr. Kushagra Kashyab and Dr. Poonam Deshpande for their invaluable guidance, encouragement, and continuous support throughout the development of BioPlotGen.
+Their insights in the field of bioinformatics and constant motivation have been instrumental in shaping this project from concept to execution.
+I also extend sincere thanks to my peers, faculty, and the Department of Bioinformatics, DES Fergusson College, Pune, for providing a collaborative environment and helpful feedback at every stage of development.
+Finally, I am thankful to the open-source community and tools like Python, Streamlit, Seaborn, Biopython, and Matplotlib, which made the creation of this interactive application possible
     🔗 *Built using Python, Streamlit, Seaborn, Biopython*
     """)
 
