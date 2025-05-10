@@ -8,18 +8,57 @@ from collections import Counter
 import io
 import numpy as np
 
+# Apply light pastel background and styling
+st.markdown("""
+    <style>
+    body {
+        background-color: #f4f9f9;
+    }
+    .stApp {
+        background-color: #fefefe;
+        color: #333333;
+    }
+    .css-18e3th9 {
+        padding: 2rem;
+        border-radius: 1rem;
+        background: #f0f8ff;
+    }
+    h1, h2, h3 {
+        color: #005f73;
+    }
+    .stButton>button {
+        background-color: #94d2bd;
+        color: black;
+        border-radius: 10px;
+        padding: 10px 16px;
+    }
+    .stDownloadButton>button {
+        background-color: #ffb703;
+        color: black;
+        border-radius: 10px;
+        padding: 10px 16px;
+    }
+    .stSelectbox>div>div {
+        background-color: #ffffff;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Setting page configuration
 st.set_page_config(page_title="BioPlotGen", layout="wide")
 st.title("🧬 BioPlotGen – Bioinformatics Plot Generator")
 
 # ---------------- Navigation Tabs ---------------- #
-tab1, tab2, tab3 = st.tabs(["🏠 Welcome", "🧪 About the App", "👥 About Team"])
+tab1, tab2, tab3, tab4 = st.tabs(["🏠 Welcome", "🧪 About the App", "👥 About Team", "📈 Generate Plots"])
 
+# Tab 1: Welcome
 with tab1:
     st.title("🧬 Welcome to BioPlotGen")
     st.markdown("""
     **BioPlotGen** is an interactive web app for visualizing biological data—whether you're working with gene expression, DNA, or protein sequences. It transforms complex datasets into meaningful plots with just a few clicks.
     """)
 
+# Tab 2: About the App
 with tab2:
     st.header("🔍 About BioPlotGen")
     st.markdown("""
@@ -32,167 +71,151 @@ with tab2:
     - **💾 Export Plots:** PNG, PDF, SVG
     """)
 
+# Tab 3: About the Creator
 with tab3:
     st.header("👩‍💻 About the Creator")
     st.markdown("""
-**Riyasingh Thakur**, MSc Bioinformatics student at DES Pune University.
-I am  a passionate MSc Bioinformatics student at DES Pune University. With a strong background in microbiology and a growing expertise in programming,     I am deeply committed to bridging the gap between biological sciences and computational technologies.
-BioPlotGen work on BioPlotGen reflects  my enthusiasm for creating user-friendly tools that simplify complex biological data analysis. I believe that the integration of biology and computer science holds the key to unlocking breakthroughs in modern research—and I am determined to be a part of that transformation.
-I would like to express my deepest gratitude to Dr. Kushagra Kashyab and Dr. Poonam Deshpande for their invaluable guidance, encouragement, and continuous support throughout the development of BioPlotGen.
-Their insights in the field of bioinformatics and constant motivation have been instrumental in shaping this project from concept to execution.
-I also extend sincere thanks to my peers, faculty, and the Department of Bioinformatics, DES Pune University, for providing a collaborative environment and helpful feedback at every stage of development.
-Finally, I am thankful to the open-source community and tools like Python, Streamlit, Seaborn, Biopython, and Matplotlib, which made the creation of this interactive application possible.*
+    **Riyasingh Thakur**, MSc Bioinformatics student at DES Pune University.
+
+    *Gratitude to mentors Dr. Kushagra Kashyab and Dr. Poonam Deshpande for their guidance.*
 
     🔗 *Built using Python, Streamlit, Seaborn, Biopython*
     """)
 
-# ---------------- Helper Functions ---------------- #
-def load_csv(file):
-    return pd.read_csv(file)
+# Tab 4: Plot Generator
+with tab4:
+    st.header("📈 Plot Generator")
 
-def load_txt(file):
-    return pd.read_csv(file, delimiter="\t")
+    file = st.file_uploader("Upload CSV, TXT, or FASTA", type=["csv", "txt", "fasta"])
 
-def load_fasta(uploaded_file):
-    content = uploaded_file.read().decode("utf-8")
-    handle = io.StringIO(content)
-    records = list(SeqIO.parse(handle, "fasta"))
-    data = [{"ID": rec.id, "Description": rec.description, "Sequence": str(rec.seq)} for rec in records]
-    return pd.DataFrame(data)
+    # Function Definitions
 
-def calculate_gc(seq):
-    seq = seq.upper()
-    g = seq.count("G")
-    c = seq.count("C")
-    return round((g + c) / len(seq) * 100, 2) if len(seq) > 0 else 0
+    def load_csv(file):
+        return pd.read_csv(file)
 
-def codon_usage(sequence):
-    seq = sequence.upper().replace("\n", "").replace(" ", "")
-    codons = [seq[i:i+3] for i in range(0, len(seq) - 2, 3) if len(seq[i:i+3]) == 3]
-    return dict(Counter(codons))
+    def load_txt(file):
+        return pd.read_csv(file, sep="\t")  # or sep="\s+" for space-separated
 
-def amino_acid_freq(sequence):
-    seq_obj = Seq(sequence)
-    protein = seq_obj.translate(to_stop=True)
-    return dict(Counter(str(protein)))
+    def load_fasta(file):
+        records = []
+        for record in SeqIO.parse(file, "fasta"):
+            records.append({"ID": record.id, "Sequence": str(record.seq)})
+        return pd.DataFrame(records)
 
-def volcano_plot(df, x='log2FoldChange', y='pvalue', threshold=0.05, lfc_threshold=1):
-    df['Expression'] = np.select(
-        [(df[y] < threshold) & (df[x] > lfc_threshold),
-         (df[y] < threshold) & (df[x] < -lfc_threshold)],
-        ['Overexpressed', 'Underexpressed'],
-        default='Not Significant'
-    )
-    fig, ax = plt.subplots()
-    df[y] = df[y].clip(lower=1e-300)  # Prevent log(0)
-    sns.scatterplot(data=df, x=x, y=-np.log10(df[y]), hue='Expression', ax=ax,
-                    palette={'Overexpressed': 'red', 'Underexpressed': 'blue', 'Not Significant': 'gray'})
-    ax.set_xlabel("log2(Fold Change)")
-    ax.set_ylabel("-log10(p-value)")
-    ax.set_title("Volcano Plot")
-    return fig
+    def calculate_gc(sequence):
+        sequence = sequence.upper()
+        gc_count = sequence.count("G") + sequence.count("C")
+        return (gc_count / len(sequence)) * 100 if sequence else 0
 
-def grouped_bar_plot(df, x, y, hue):
-    fig, ax = plt.subplots()
-    sns.barplot(data=df, x=x, y=y, hue=hue, ax=ax)
-    return fig
+    def codon_usage(sequence):
+        codons = [sequence[i:i+3] for i in range(0, len(sequence)-2, 3)]
+        return dict(Counter(codons))
 
-# ---------------- Sidebar ---------------- #
-st.sidebar.header("Upload Your Data")
-file = st.sidebar.file_uploader("Upload CSV, TXT, or FASTA", type=["csv", "txt", "fasta"])
+    def amino_acid_freq(sequence):
+        protein_seq = str(Seq(sequence).translate(to_stop=True))
+        return dict(Counter(protein_seq))
 
-plot_types = ["Scatter Plot", "Line Plot", "Bar Chart", "Histogram", "Box Plot", "Violin Plot", "Heatmap", "Grouped Bar Plot", "Volcano Plot"]
+    def grouped_bar_plot(df, x, y, hue):
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.barplot(data=df, x=x, y=y, hue=hue, ax=ax)
+        return fig
 
-# ---------------- File Handling ---------------- #
-if file:
-    ext = file.name.split(".")[-1].lower()
+    def volcano_plot(df, logFC_col, pval_col):
+        df['-log10(pval)'] = -np.log10(df[pval_col])
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.scatterplot(data=df, x=logFC_col, y='-log10(pval)', hue=(df[pval_col] < 0.05) & (abs(df[logFC_col]) > 1), palette={True: 'red', False: 'gray'}, ax=ax)
+        ax.axhline(-np.log10(0.05), color='blue', linestyle='--')
+        ax.axvline(-1, color='blue', linestyle='--')
+        ax.axvline(1, color='blue', linestyle='--')
+        return fig
 
-    if ext == "csv":
-        data = load_csv(file)
-    elif ext == "txt":
-        data = load_txt(file)
-    elif ext == "fasta":
-        data = load_fasta(file)
-        data['GC_Content (%)'] = data['Sequence'].apply(calculate_gc)
+    plot_types = ["Scatter Plot", "Line Plot", "Bar Chart", "Histogram", "Box Plot", "Violin Plot", "Grouped Bar Plot", "Heatmap", "Volcano Plot"]
 
-    st.subheader("📄 Uploaded Data Preview")
-    st.dataframe(data.head())
+    if file:
+        ext = file.name.split(".")[-1].lower()
+        if ext == "csv":
+            data = load_csv(file)
+        elif ext == "txt":
+            data = load_txt(file)
+        elif ext == "fasta":
+            data = load_fasta(file)
+            data['GC_Content (%)'] = data['Sequence'].apply(calculate_gc)
 
-    # ------------- FASTA Handling ------------- #
-    if ext == "fasta":
-        st.sidebar.header("Sequence Analysis")
-        selected_seq_index = st.sidebar.selectbox("Select Sequence", data.index, format_func=lambda x: data.loc[x, 'ID'])
-        selected_seq = data.loc[selected_seq_index, 'Sequence']
-        analysis_type = st.sidebar.selectbox("Analysis Type", ["Codon Usage", "Amino Acid Frequency"])
-        st.subheader(f"{analysis_type} for: {data.loc[selected_seq_index, 'ID']}")
+        st.subheader("📄 Uploaded Data Preview")
+        st.dataframe(data.head())
 
-        if analysis_type == "Codon Usage":
-            codon_freq = codon_usage(selected_seq)
-            codon_df = pd.DataFrame(codon_freq.items(), columns=["Codon", "Count"]).sort_values(by="Count", ascending=False)
-            st.dataframe(codon_df)
-            fig, ax = plt.subplots(figsize=(12, 6))
-            sns.barplot(data=codon_df, x="Codon", y="Count", palette="viridis", ax=ax)
-            plt.xticks(rotation=45)
-            st.pyplot(fig)
+        if ext == "fasta":
+            st.subheader("🧬 Sequence Analysis")
+            selected_seq_index = st.selectbox("Select Sequence", data.index, format_func=lambda x: data.loc[x, 'ID'])
+            selected_seq = data.loc[selected_seq_index, 'Sequence']
+            analysis_type = st.selectbox("Analysis Type", ["Codon Usage", "Amino Acid Frequency"])
+            st.write(f"**{analysis_type} for:** `{data.loc[selected_seq_index, 'ID']}`")
 
-        elif analysis_type == "Amino Acid Frequency":
-            aa_freq = amino_acid_freq(selected_seq)
-            aa_df = pd.DataFrame(aa_freq.items(), columns=["Amino Acid", "Count"]).sort_values(by="Count", ascending=False)
-            st.dataframe(aa_df)
-            fig, ax = plt.subplots(figsize=(12, 6))
-            sns.barplot(data=aa_df, x="Amino Acid", y="Count", palette="plasma", ax=ax)
-            plt.xticks(rotation=45)
-            st.pyplot(fig)
+            if analysis_type == "Codon Usage":
+                codon_freq = codon_usage(selected_seq)
+                codon_df = pd.DataFrame(codon_freq.items(), columns=["Codon", "Count"]).sort_values(by="Count", ascending=False)
+                st.dataframe(codon_df)
+                fig, ax = plt.subplots(figsize=(12, 6))
+                sns.barplot(data=codon_df, x="Codon", y="Count", palette="viridis", ax=ax)
+                plt.xticks(rotation=45)
+                st.pyplot(fig)
 
-    # ------------- Plots for CSV/TXT ------------- #
-    else:
-        st.sidebar.header("Plot Settings")
-        plot_type = st.sidebar.selectbox("Choose Plot Type", plot_types)
-        x_col = st.sidebar.selectbox("X-axis", data.columns)
-        y_col = st.sidebar.selectbox("Y-axis", data.columns)
+            elif analysis_type == "Amino Acid Frequency":
+                aa_freq = amino_acid_freq(selected_seq)
+                aa_df = pd.DataFrame(aa_freq.items(), columns=["Amino Acid", "Count"]).sort_values(by="Count", ascending=False)
+                st.dataframe(aa_df)
+                fig, ax = plt.subplots(figsize=(12, 6))
+                sns.barplot(data=aa_df, x="Amino Acid", y="Count", palette="plasma", ax=ax)
+                plt.xticks(rotation=45)
+                st.pyplot(fig)
 
-        hue_col = None
-        if plot_type == "Grouped Bar Plot":
-            hue_col = st.sidebar.selectbox("Hue (grouping)", data.columns)
-
-        st.subheader(f"{plot_type} of {x_col} vs {y_col}")
-
-        if plot_type == "Grouped Bar Plot":
-            fig = grouped_bar_plot(data, x_col, y_col, hue_col)
-        elif plot_type == "Volcano Plot":
-            fig = volcano_plot(data, x_col, y_col)
         else:
-            fig, ax = plt.subplots()
-            if plot_type == "Scatter Plot":
-                sns.scatterplot(data=data, x=x_col, y=y_col, ax=ax)
-            elif plot_type == "Line Plot":
-                sns.lineplot(data=data, x=x_col, y=y_col, ax=ax)
-            elif plot_type == "Bar Chart":
-                sns.barplot(data=data, x=x_col, y=y_col, ax=ax)
-            elif plot_type == "Histogram":
-                sns.histplot(data[x_col], kde=True, ax=ax)
-            elif plot_type == "Box Plot":
-                sns.boxplot(data=data, x=x_col, y=y_col, ax=ax)
-            elif plot_type == "Violin Plot":
-                sns.violinplot(data=data, x=x_col, y=y_col, ax=ax)
-            elif plot_type == "Heatmap":
-                if data.select_dtypes(include=['number']).shape[1] >= 2:
-                    sns.heatmap(data.select_dtypes(include=['number']).corr(), annot=True, cmap="coolwarm", ax=ax)
-                else:
-                    st.warning("Heatmap requires at least 2 numeric columns.")
-            fig.tight_layout()
+            st.subheader("📊 Plot Settings")
+            plot_type = st.selectbox("Choose Plot Type", plot_types)
+            x_col = st.selectbox("X-axis", data.columns)
+            y_col = st.selectbox("Y-axis", data.columns)
 
-        st.pyplot(fig)
+            hue_col = None
+            if plot_type == "Grouped Bar Plot":
+                hue_col = st.selectbox("Hue (grouping)", data.columns)
 
-        # ---------- Export Plot ---------- #
-        st.sidebar.header("Export Plot")
-        file_format = st.sidebar.selectbox("Select format", ["PNG", "SVG", "PDF"])
-        buf = io.BytesIO()
-        fig.savefig(buf, format=file_format.lower(), bbox_inches="tight")
-        st.download_button(
-            label="Download Plot",
-            data=buf.getvalue(),
-            file_name=f"bioplotgen_plot.{file_format.lower()}",
-            mime=f"image/{file_format.lower()}"
-        )
+            st.subheader(f"{plot_type} of {x_col} vs {y_col}")
 
+            if plot_type == "Grouped Bar Plot":
+                fig = grouped_bar_plot(data, x_col, y_col, hue_col)
+            elif plot_type == "Volcano Plot":
+                fig = volcano_plot(data, x_col, y_col)
+            else:
+                fig, ax = plt.subplots()
+                if plot_type == "Scatter Plot":
+                    sns.scatterplot(data=data, x=x_col, y=y_col, ax=ax)
+                elif plot_type == "Line Plot":
+                    sns.lineplot(data=data, x=x_col, y=y_col, ax=ax)
+                elif plot_type == "Bar Chart":
+                    sns.barplot(data=data, x=x_col, y=y_col, ax=ax)
+                elif plot_type == "Histogram":
+                    sns.histplot(data[x_col], kde=True, ax=ax)
+                elif plot_type == "Box Plot":
+                    sns.boxplot(data=data, x=x_col, y=y_col, ax=ax)
+                elif plot_type == "Violin Plot":
+                    sns.violinplot(data=data, x=x_col, y=y_col, ax=ax)
+                elif plot_type == "Heatmap":
+                    if data.select_dtypes(include=['number']).shape[1] >= 2:
+                        sns.heatmap(data.select_dtypes(include=['number']).corr(), annot=True, cmap="coolwarm", ax=ax)
+                    else:
+                        st.warning("Heatmap requires at least 2 numeric columns.")
+                fig.tight_layout()
+
+            st.pyplot(fig)
+
+            # ---------- Export Plot ---------- #
+            st.subheader("📤 Export Plot")
+            file_format = st.selectbox("Select format", ["PNG", "SVG", "PDF"])
+            buf = io.BytesIO()
+            fig.savefig(buf, format=file_format.lower(), bbox_inches="tight")
+            st.download_button(
+                label="Download Plot",
+                data=buf.getvalue(),
+                file_name=f"bioplotgen_plot.{file_format.lower()}",
+                mime=f"image/{file_format.lower()}"
+            )
