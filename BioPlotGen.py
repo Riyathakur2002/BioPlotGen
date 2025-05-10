@@ -11,7 +11,7 @@ import numpy as np
 # Setting page configuration (this must be the first command in the script)
 st.set_page_config(page_title="BioPlotGen", layout="wide")
 
-# Apply light pastel background and styling
+# Apply light pastel background and custom styles
 st.markdown("""
     <style>
     body {
@@ -28,6 +28,11 @@ st.markdown("""
     }
     h1, h2, h3 {
         color: #005f73;
+        font-weight: bold;
+    }
+    h1 {
+        font-size: 40px;
+        color: #ff6347;  # Tomato color for title
     }
     .stButton>button {
         background-color: #94d2bd;
@@ -44,17 +49,19 @@ st.markdown("""
     .stSelectbox>div>div {
         background-color: #ffffff;
     }
+    .stTabs>div {
+        background-color: #e0f7fa;
+        color: #004d40;
+    }
     </style>
 """, unsafe_allow_html=True)
 
 # ---------------- Navigation Tabs ---------------- #
-tab1, tab2, tab3, tab4 = st.tabs(["🏠 Welcome", "🧪 About the App", "👥 About Team", "📈 Generate Plots"])
 
 # Tab 1: Welcome
 with tab1:
     st.title("🧬 Welcome to BioPlotGen")
     st.markdown("""
-    **🧬 Welcome to BioPlotGen
 Welcome to BioPlotGen, the ultimate tool for visualizing and analyzing biological data, designed for biologists, researchers, and students at all levels—no coding required!
 BioPlotGen makes it easier than ever to transform complex biological data into insightful, publication-quality plots with just a few clicks. Whether you're analyzing gene expression, DNA sequences, protein structures, or other bioinformatics data, BioPlotGen provides an intuitive, user-friendly platform to help you make sense of your research without needing any programming skills.
     """)
