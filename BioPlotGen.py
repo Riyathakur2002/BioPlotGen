@@ -26,7 +26,7 @@ with tab2:
     **BioPlotGen** helps bioinformatics students and researchers generate quick visual insights from biological data.
 
     ### ⚙️ Features:
-    - **📁 File Upload:** Supports `.csv`, `.txt`, `.fasta`
+    - **📁 File Upload:** Supports .csv, .txt, .fasta
     - **🧬 Sequence Analysis:** GC Content, Codon Usage, Amino Acid Frequency
     - **📊 Plot Types:** Scatter, Line, Bar, Histogram, Box, Violin, Grouped Bar, Heatmap, Volcano
     - **💾 Export Plots:** PNG, PDF, SVG
@@ -111,7 +111,7 @@ if file:
         data = load_fasta(file)
         data['GC_Content (%)'] = data['Sequence'].apply(calculate_gc)
 
-    st.subheader("Uploaded Data Preview")
+    st.subheader("📄 Uploaded Data Preview")
     st.dataframe(data.head())
 
     # ------------- FASTA Handling ------------- #
@@ -191,3 +191,4 @@ if file:
             file_name=f"bioplotgen_plot.{file_format.lower()}",
             mime=f"image/{file_format.lower()}"
         )
+
