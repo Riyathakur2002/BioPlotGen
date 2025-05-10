@@ -1,8 +1,8 @@
-streamlit==1.25.0
-pandas==2.0.3
-numpy==1.24.3
-seaborn==0.12.2
-matplotlib==3.7.1
-biopython==1.80
+streamlit
+pandas
+numpy
+seaborn
+matplotlib
+biopython
 
 
